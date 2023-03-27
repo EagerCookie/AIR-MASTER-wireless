@@ -8,6 +8,13 @@
 
 byte data[33];
 byte PM25, PM10, HCHO, TVOC, CO2[2], TEMP, RH;
+// Define state machine variables
+const byte WAIT_FF1 = 0;
+const byte WAIT_FF2 = 1;
+const byte READ_DATA = 2;
+byte state = WAIT_FF1;
+byte dataIndex = 0;
+
 
 // Default WiFi credentials for AP mode
 const char *defSSID = "MyESP8266AP";
@@ -47,7 +54,7 @@ void setup() {
 
   // Start mDNS responder
   if (MDNS.begin("airmaster")) {
-    Serial.println("mDNS responder started");
+    //Serial.println("mDNS responder started");
   }
 
   // Set up OTA update server
@@ -64,44 +71,66 @@ void setup() {
 
   // Start web server
   server.begin();
-  Serial.println("Web server started");
+ // Serial.println("Web server started");
 }
 
 void loop() {
   server.handleClient();
 
-  // Wait for the start of a new packet (indicated by 0xFF 0xFF)
-  while (Serial.available() < 2 || Serial.read() != 0xFF || Serial.read() != 0xFF);
+  // Read incoming data
+  while (Serial.available() > 0) {
+    byte incomingByte = Serial.read();
 
-  // Read the rest of the packet into the data array
-  Serial.readBytes(data, 33);
+    switch (state) {
+      case WAIT_FF1:
+        if (incomingByte == 0xFF) {
+          state = WAIT_FF2;
+        }
+        break;
+      case WAIT_FF2:
+        if (incomingByte == 0xFF) {
+          state = READ_DATA;
+          dataIndex = 0;
+        } else {
+          state = WAIT_FF1;
+        }
+        break;
+      case READ_DATA:
+        data[dataIndex] = incomingByte;
+        dataIndex++;
+        if (dataIndex == 33) {
+          state = WAIT_FF1;
 
-  // Extract data bytes and store in variables
-  PM25 = data[19-1];
-  PM10 = data[21-1];
-  HCHO = data[23-1];
-  TVOC = data[25-1];
-  CO2[0] = data[26-1];
-  CO2[1] = data[27-1];
-  TEMP = data[28-1];
-  RH = data[30-1];
-/*
-  // Print the variable values to the serial monitor
-  Serial.print("PM2.5: ");
-  Serial.println(PM25);
-  Serial.print("PM10: ");
-  Serial.println(PM10);
-  Serial.print("HCHO: ");
-  Serial.println(HCHO);
-  Serial.print("TVOC: ");
-  Serial.println(TVOC);
-  Serial.print("CO2: ");
-  Serial.println((CO2[0] << 8) | CO2[1]);
-  Serial.print("TEMP: ");
-  Serial.println(TEMP);
-  Serial.print("RH: ");
-  Serial.println(RH);
-*/
+          // Extract data bytes and store in variables
+          PM25 = data[19-1];
+          PM10 = data[21-1];
+          HCHO = data[23-1];
+          TVOC = data[25-1];
+          CO2[0] = data[26-1];
+          CO2[1] = data[27-1];
+          TEMP = data[28-1];
+          RH = data[30-1];
+
+          // Print the variable values to the serial monitor
+          Serial.print("PM2.5: ");
+          Serial.println(PM25);
+          Serial.print("PM10: ");
+          Serial.println(PM10);
+          Serial.print("HCHO: ");
+          Serial.println(HCHO);
+          Serial.print("TVOC: ");
+          Serial.println(TVOC);
+          Serial.print("CO2: ");
+          Serial.println((CO2[0] << 8) | CO2[1]);
+          Serial.print("TEMP: ");
+          Serial.println(TEMP);
+          Serial.print("RH: ");
+          Serial.println(RH);
+        }
+        break;
+    }
+  }
+
 }
 
 // Connect to WiFi with stored credentials
@@ -114,7 +143,7 @@ void connectWiFi(int attempts) {
   }
   Serial.println("");
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Failed to connect to WiFi");
+    //Serial.println("Failed to connect to WiFi");
     // Clear stored credentials and start AP mode
     memset(ssid, 0, sizeof(ssid));
     memset(password, 0, sizeof(password));
@@ -123,17 +152,17 @@ void connectWiFi(int attempts) {
     EEPROM.commit();
     startAP();
   } else {
-    Serial.println("Connected to WiFi");
+    //Serial.println("Connected to WiFi");
   }
 }
 
 // Start AP mode with default credentials
 void startAP() {
-  Serial.println("Starting AP mode...");
+  //Serial.println("Starting AP mode...");
   WiFi.softAP(defSSID, default_password);
   IPAddress apIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(apIP);
+  //Serial.print("AP IP address: ");
+  //Serial.println(apIP);
 }
 
 // Handle requests to the root path
@@ -158,7 +187,7 @@ void handleWifi() {
     String ssid_new = server.arg("ssid");
     String password_new = server.arg("password");
     if (ssid_new.length() > 0 && password_new.length() > 0) {
-  Serial.println("Updating WiFi credentials...");
+ // Serial.println("Updating WiFi credentials...");
   memset(ssid, 0, sizeof(ssid));
   memset(password, 0, sizeof(password));
   ssid_new.toCharArray(ssid, sizeof(ssid));
