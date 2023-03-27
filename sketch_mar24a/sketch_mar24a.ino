@@ -7,7 +7,7 @@
 
 
 byte data[33];
-byte PM25, PM10, HCHO, TVOC, CO2[2], TEMP, RH;
+byte PM25, PM10, HCHO, TVOC, CO2[2], TEMP[2], RH[2];
 // Define state machine variables
 const byte WAIT_FF1 = 0;
 const byte WAIT_FF2 = 1;
@@ -102,30 +102,18 @@ void loop() {
           state = WAIT_FF1;
 
           // Extract data bytes and store in variables
-          PM25 = data[19-1];
-          PM10 = data[21-1];
-          HCHO = data[23-1];
-          TVOC = data[25-1];
-          CO2[0] = data[26-1];
-          CO2[1] = data[27-1];
-          TEMP = data[28-1];
-          RH = data[30-1];
+          PM25 = data[19-3];
+          PM10 = data[21-3];
+          HCHO = data[23-3];
+          TVOC = data[25-3];
+          CO2[0] = data[26-3];
+          CO2[1] = data[27-3];
+          TEMP[0] = data[28-3];
+          TEMP[1] = data[29-3];
+          RH[0] = data[30-3];
+          RH[1] = data[31-3];
 
-          // Print the variable values to the serial monitor
-          Serial.print("PM2.5: ");
-          Serial.println(PM25);
-          Serial.print("PM10: ");
-          Serial.println(PM10);
-          Serial.print("HCHO: ");
-          Serial.println(HCHO);
-          Serial.print("TVOC: ");
-          Serial.println(TVOC);
-          Serial.print("CO2: ");
-          Serial.println((CO2[0] << 8) | CO2[1]);
-          Serial.print("TEMP: ");
-          Serial.println(TEMP);
-          Serial.print("RH: ");
-          Serial.println(RH);
+
         }
         break;
     }
@@ -169,11 +157,16 @@ void startAP() {
 void handleRoot() {
   String html = "<html><body>";
   html += "<h1>Hello from ESP8266!v3</h1>";
-  html += "<p>"+String((CO2[0] <<8) |(CO2[1]),DEC)+"</p>";
-  html += "<p>Temp: "+String(TEMP, HEX)+"</p>";
-    html += "<p>Temp: "+String(TEMP, DEC)+"</p>";
+  html += "<p>CO2: "+String((CO2[0] <<8) |(CO2[1]),DEC)+"</p>";
+  html += "<p>Temp: "+String(((TEMP[0] <<8) |(TEMP[1])),DEC)+"</p>";
+  html += "<p>RH: "+String(((RH[0] <<8) |(RH[1])),DEC)+"</p>";
   html += "<p>PM2.5: "+String(PM25)+"</p>";
   html += "<p>PM10: "+String(PM10)+"</p>";
+  html += "<p>HCHO: "+String(HCHO)+"</p>";
+  html += "<p>TVOC: "+String(TVOC)+"</p>";
+
+
+          
   html += "<p><a href=\"/wifi\">WiFi Settings</a></p>";
   html +="<p>18 -> "+String(data[18])+" | "+String(data[19])+" | "+String(data[20])+" | "+String(data[21])+" | "+String(data[22])+" | "+String(data[23])+" | "+String(data[24])+" | "+"</p>";
   html += "</body></html>";
