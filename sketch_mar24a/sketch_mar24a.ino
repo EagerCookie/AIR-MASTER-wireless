@@ -64,7 +64,7 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/wifi", handleWifi);
   server.on("/reset", handleReset);
-  server.onNotFound(handleNotFound);
+  server.onNotFound(handleResource);
 
 
 
@@ -172,6 +172,35 @@ void handleRoot() {
   html += "</body></html>";
   server.send(200, "text/html", html);
 }
+
+
+void handleResource() {
+  String resourcePath = server.uri(); // get the requested resource path
+  String contentType = "text/plain"; // set the content type to plain text by default
+  Serial.println(resourcePath);
+
+
+  if (resourcePath.endsWith(".html")) { // check if the resource is an HTML file
+    contentType = "text/html"; // set the content type to HTML
+  } else if (resourcePath.endsWith(".css")) { // check if the resource is a CSS file
+    contentType = "text/css"; // set the content type to CSS
+  } else if (resourcePath.endsWith(".js")) { // check if the resource is a JavaScript file
+    contentType = "application/javascript"; // set the content type to JavaScript
+  }
+  
+  if (SPIFFS.exists(resourcePath)) { // check if the resource exists in the internal memory
+    File file = SPIFFS.open(resourcePath, "r"); // open the resource file in read mode
+    server.streamFile(file, contentType); // stream the file to the client with the correct content type
+    file.close(); // close the file
+  } else { // if the resource does not exist
+    String html = "<html><body>";
+html += "<h1>404 Not Found</h1>";
+html += "<p>The requested URL " + server.uri() + " was not found on this server.</p>";
+html += "</body></html>";
+    server.send(404, "text/plain", html); // send a 404 Not Found status
+  }
+}
+
 
 // Handle requests to the /wifi path
 void handleWifi() {

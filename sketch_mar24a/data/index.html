@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Air Quality Monitor</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f7f7f7;
+			color: #333;
+			padding: 20px;
+		}
+
+		h1 {
+			font-size: 36px;
+			margin-bottom: 20px;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			margin-bottom: 30px;
+		}
+
+		th, td {
+			padding: 10px;
+			text-align: left;
+			border: 1px solid #ddd;
+		}
+
+		th {
+			background-color: #eee;
+			font-weight: bold;
+		}
+
+		.high {
+			color: red;
+			font-weight: bold;
+		}
+
+		.medium {
+			color: orange;
+			font-weight: bold;
+		}
+
+		.low {
+			color: green;
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body>
+	<h1>Air Quality Monitor</h1>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Value</th>
+			<th>Level</th>
+		</tr>
+		<tr>
+			<td>2.5 particles in the air</td>
+			<td>23</td>
+			<td class="high">High</td>
+		</tr>
+		<tr>
+			<td>10 particles in the air</td>
+			<td>81</td>
+			<td class="high">High</td>
+		</tr>
+		<tr>
+			<td>HCHO</td>
+			<td>0.023 ppm</td>
+			<td class="medium">Medium</td>
+		</tr>
+		<tr>
+			<td>TVOC</td>
+			<td>0.09 ppm</td>
+			<td class="low">Low</td>
+		</tr>
+		<tr>
+			<td>CO2</td>
+			<td>790 ppm</td>
+			<td class="medium">Medium</td>
+		</tr>
+		<tr>
+			<td>Temp</td>
+			<td>24°C</td>
+			<td class="low">Low</td>
+		</tr>
+		<tr>
+			<td>Humidity</td>
+			<td>45%</td>
+			<td class="low">Low</td>
+		</tr>
+	</table>
+	<p>Note: High, Medium, and Low levels are based on recommended guidelines.</p>
+</body>
+</html>
