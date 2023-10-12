@@ -3,6 +3,7 @@
 - add second byte for particle sensor, HVOC and TVOC
 - RH should be FLOAT
 - Add nice HTML
+- Implement deep sleep mode for battery saving purposes
 
 *Internally device generate 3 identical arrays of 33 bytes once per second  
 6-st byte is counter to detect changes
